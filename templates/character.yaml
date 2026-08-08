@@ -1,0 +1,46 @@
+# キャラクター設定テンプレート
+# ファイル名 = id にする(例: canon/characters/aoi.yaml)。
+# このファイル(_template.yaml)自体は "_" 始まりなので読み込み対象外。
+
+id: ""               # 半角英数の識別子。outline や state から参照する
+name: ""             # 本文中の正典表記
+aliases: []          # 別名・呼び名(「隊長」など本文に出る呼称すべて)
+status: alive        # alive / dead / missing (死亡したら canon-sync で更新)
+first_appearance: 1  # 初登場章
+
+# 1行サマリ【重要】: 解像度可変モードで“全章・常時ロード”される唯一の情報。
+# 表記・生死・現在の立場・特筆能力など、他の章で矛盾したら致命的なものを詰める
+summary: ""
+
+invariants:          # 不変属性(変わったら矛盾になるもの)
+  eyes: ""           # 目の色
+  hair: ""           # 髪の色・型
+  height: ""
+  handedness: ""     # 利き手
+  distinguishing: "" # 傷・痣など特徴
+
+mutable_initial:     # 可変属性の初期値(現在値は state/character-state.yaml が正)
+  affiliation: ""
+  goal: ""
+
+speech:              # 口調(style-auditor が照合する)
+  first_person: ""   # 一人称(私/俺/僕…)
+  second_person: ""  # 二人称(あなた/お前…)
+  tone: ""           # 例: 丁寧語。感情が昂ると敬語が崩れる
+  verbal_tics: []    # 口癖
+  examples:          # 実際の台詞サンプル(2〜3個。口調の最重要参照)
+    - ""
+
+relationships: {}    # 例: { ren: "幼馴染。借りがある", ... }
+
+background: |
+  (生い立ち・来歴。長文可。解像度可変モードでは登場章でのみロードされる)
+
+# 機械lint 用の禁止パターン(任意)。invariants のうち特に事故りやすいものを
+# 正規表現で書いておくと、hook が保存のたびに機械検出する。
+# near を指定すると、その語の近傍(前後120字)に現れた場合だけ検出する。
+lint:
+  forbid: []
+#    - pattern: "赤い(目|瞳)"
+#      near: アオイ
+#      reason: "アオイの目は青"

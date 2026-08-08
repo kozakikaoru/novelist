@@ -1,0 +1,9 @@
+# 用語集 — 固有名詞の正典表記。表記ゆれ検出の要
+# canonical: 正しい表記(本文はこれに統一)
+# variants:  やりがちな誤表記・ゆれ(lint が検出して ERROR にする)
+# category:  person / place / item / organization / concept など
+terms:
+  - canonical: ""
+    variants: []
+    category: ""
+    note: ""

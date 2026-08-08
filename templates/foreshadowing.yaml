@@ -1,0 +1,10 @@
+# 伏線台帳 — 仕込みと回収の管理。foreshadow-keeper が毎章照合する
+# status: planted(仕込み済) / resolved(回収済) / dropped(意図的に破棄)
+items: []
+#  - id: F001
+#    description: ""       # 何を匂わせたか
+#    payoff: ""            # どう回収する予定か
+#    planted_in: 1         # 仕込んだ章
+#    due_by: 10            # この章までに回収する(期限)
+#    status: planted
+#    resolved_in: null

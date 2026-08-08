@@ -1,0 +1,21 @@
+# novelist プラグイン設定
+version: 1
+
+paths:
+  canon: canon            # 正典(世界観・キャラ・用語)
+  plot: plot              # 章構成・伏線台帳
+  state: state            # 可変状態(現在地・負傷・知識)
+  manuscript: manuscript  # 原稿
+
+# 原稿ファイル名の形式 (python format。n = 章番号)
+manuscript_pattern: "ch{n:02d}.md"
+
+context_pack:
+  output_dir: state/context-pack
+  # canon 合計がこの文字数未満なら絞り込みをせず全文投入する。
+  # 超えると「解像度可変モード」(登場キャラのみフル、他キャラは1行、制約と用語は常時フル)
+  full_load_threshold_chars: 60000
+
+lint:
+  # 未登録カタカナ語チェックの最小文字数(これ未満の短い語は対象外)
+  min_katakana_len: 3

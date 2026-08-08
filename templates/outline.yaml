@@ -1,0 +1,12 @@
+# 章構成 — 各章の設計図。コンテキストパック生成の起点
+# characters には「登場する」キャラの id を全部書く(台詞が無くても居るなら書く)。
+# 会話で言及されるだけのキャラは書かなくてよい(1行サマリが常時ロードされるため)。
+chapters: []
+#  - n: 1
+#    title: ""
+#    pov: aoi                    # 視点キャラの id
+#    characters: [aoi, ren]      # 登場キャラの id
+#    locations: []
+#    summary: ""                 # この章で起きること・終わりの状態
+#    foreshadowing_plant: []     # この章で仕込む伏線 id
+#    foreshadowing_resolve: []   # この章で回収する伏線 id

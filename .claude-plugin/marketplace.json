@@ -1,0 +1,13 @@
+{
+  "name": "novelist",
+  "owner": {
+    "name": "kozakikaoru"
+  },
+  "plugins": [
+    {
+      "name": "novelist",
+      "source": "./",
+      "description": "設定矛盾を防ぐ小説執筆支援プラグイン(canon管理 + マルチエージェント監査 + 決定論lint)"
+    }
+  ]
+}

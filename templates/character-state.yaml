@@ -1,0 +1,9 @@
+# キャラクター現在状態 — 章が確定するたび canon-sync で更新する
+# as_of_chapter: この状態が「第何章終了時点」か。原稿の最新章とズレていたら sync 忘れ
+as_of_chapter: 0
+characters: {}
+#  aoi:
+#    location: 王都
+#    condition: 健康        # 負傷・呪いなど。死亡なら「死亡」と書く(lintが参照)
+#    possessions: []
+#    notes: ""

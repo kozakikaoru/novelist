@@ -1,0 +1,9 @@
+# 情報の非対称性 — 「誰が何を知っているか」の台帳
+# まだ知らないはずの事実をキャラが口にする事故を防ぐ。
+# 読者だけが知る事実(dramatic irony)も known_by を絞って表現する
+facts: []
+#  - id: K001
+#    fact: "黒幕は宰相である"
+#    known_by: [ren]              # 知っているキャラの id
+#    revealed_to_reader_in: 3     # 読者に明かした章 (未開示なら null)
+#    learned: { ren: 2 }          # 各キャラが知った章(任意)
