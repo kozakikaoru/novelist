@@ -1,7 +1,7 @@
 {
   "name": "novelist",
   "description": "小説執筆支援プラグイン。設定の綿密なヒアリングで canon(正典)を構築し、執筆・整合性監査・文体監査・伏線管理を複数エージェントで分担。決定論的 lint(hook) と組み合わせて設定矛盾(目の色・口調・伏線回収忘れ等)を防ぐ。",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "author": {
     "name": "kozakikaoru"
   }
