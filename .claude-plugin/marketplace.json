@@ -1,17 +1,16 @@
 {
-  "name": "novelist",
-  "description": "小説執筆支援プラグインの配布元。設定矛盾を防ぐ canon 管理・マルチエージェント監査・挿絵プロンプト生成を提供する。",
+  "name": "novelist-marketplace",
+  "version": "0.4.0",
   "owner": {
     "name": "kozakikaoru"
   },
+  "description": "小説執筆支援プラグインのマーケットプレイス",
   "plugins": [
     {
       "name": "novelist",
-      "source": {
-        "source": "github",
-        "repo": "kozakikaoru/novelist"
-      },
-      "description": "設定矛盾を防ぐ小説執筆支援プラグイン(canon管理 + マルチエージェント監査 + 決定論lint)"
+      "source": "./plugins/novelist",
+      "description": "[v0.4.0] 設定矛盾を防ぐ小説執筆支援プラグイン。canon(正典)管理・マルチエージェント監査・決定論lint・挿絵プロンプト生成。/novelist:auto でお任せ執筆、/novelist:interview で綿密な設定打ち合わせ。",
+      "version": "0.4.0"
     }
   ]
 }
