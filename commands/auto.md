@@ -64,8 +64,9 @@ $ARGUMENTS から読み取れるものは聞き直さない。不足分だけを
 ## 6. 納品
 
 1. 最終チェック: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/lint_manuscript.py" <全原稿> --project <ルート>` と、全章一括の整合性監査(continuity-auditor に通し読みさせ、章間矛盾を最終確認)。指摘があれば修正してから納品
-2. 結合: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/compile_manuscript.py" --project <ルート>` → `build/<タイトル>.md`
-3. 納品報告:
+2. 要件で挿絵を希望されていた場合のみ、`/novelist:illustrate` と同じ手順(illustrator エージェント)で挿絵プランを作成し、マーカーを挿入する
+3. 結合: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/compile_manuscript.py" --project <ルート>` → `build/<タイトル>.md`
+4. 納品報告:
    - 作品タイトル・総文字数・章数・あらすじ
    - 納品ファイルのパス(git 管理下なら最終コミットも)
    - 伏線の仕込み/回収の一覧(全て回収済みであること)

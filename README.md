@@ -73,7 +73,16 @@ YAML の読み込みに PyYAML があると堅牢(無ければテンプレート
 /novelist:status      # 進捗・伏線期限・sync忘れの診断
 /novelist:check 3     # 既存章の監査だけ実行(執筆なし)
 /novelist:compile     # 全章を1つの納品ファイルに結合
+/novelist:illustrate  # 挿絵プラン(設定画+シーン挿絵のプロンプト)作成
 ```
+
+### 挿絵(/novelist:illustrate)
+
+画像生成AI(Stable Diffusion / NovelAI / Midjourney 等)向けのプロンプト一式を作る。初回に枚数(多め/少なめ)と画風を選ぶと `illustrations/style.yaml` に保存され、全プロンプトの画風が統一される。
+
+- **キャラクター設定画** `illustrations/characters/<id>.md` — 三面図(ターンアラウンド)+ 表情集のプロンプト。登場キャラ全員分。外見タグは canon の invariants から機械的に写すので、**挿絵と本文の矛盾も canon が防ぐ**
+- **シーン挿絵** `illustrations/scenes/chNN.md` — 章の代表シーンを選定し、**挿入場所(章 + 本文の一文引用 + 直前/直後)を明記**したプロンプト。未回収伏線の答えが映り込む構図は避ける
+- 原稿に `<!-- illust: ch03-1 -->` マーカーを挿入でき(表示に影響しない)、生成した画像を `illustrations/ch03-1.png` のように置けば `/novelist:compile` が納品ファイルに自動埋め込みする
 
 `/novelist:write N` の内部パイプライン:
 

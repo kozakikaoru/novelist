@@ -22,6 +22,31 @@ def try_load(path):
         return None
 
 
+MARKER_RE = re.compile(r"<!--\s*illust:\s*([A-Za-z0-9_-]+)\s*-->")
+IMG_EXTS = (".png", ".jpg", ".jpeg", ".webp")
+
+
+def resolve_illustrations(text, illust_dir, out_dir):
+    """挿絵マーカーを処理する。画像があれば埋め込み、無ければコメントのまま残す。
+
+    戻り値: (変換後テキスト, 埋め込んだID, 画像未配置のID)
+    """
+    embedded, pending = [], []
+
+    def repl(m):
+        iid = m.group(1)
+        for ext in IMG_EXTS:
+            img = os.path.join(illust_dir, iid + ext)
+            if os.path.exists(img):
+                embedded.append(iid)
+                rel = os.path.relpath(img, out_dir).replace(os.sep, "/")
+                return "![%s](%s)" % (iid, rel)
+        pending.append(iid)
+        return m.group(0)
+
+    return MARKER_RE.sub(repl, text), embedded, pending
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--project", default=os.getcwd())
@@ -55,6 +80,10 @@ def main(argv=None):
         ns = sorted(set(found))
 
     title = world.get("title") or "無題"
+    out_path = args.out or os.path.join(root, "build", "%s.md" % title)
+    out_dir = os.path.dirname(os.path.abspath(out_path))
+    illust_dir = os.path.join(root, "illustrations")
+    all_embedded, all_pending = [], []
     parts = ["# %s" % title]
     if world.get("summary"):
         parts.append("")
@@ -71,6 +100,9 @@ def main(argv=None):
             text = f.read().strip()
         if not text:
             continue
+        text, embedded, pending = resolve_illustrations(text, illust_dir, out_dir)
+        all_embedded += embedded
+        all_pending += pending
         ch_title = titles.get(n) or ""
         heading = "第%d章 %s" % (n, ch_title) if ch_title else "第%d章" % n
         toc.append("- %s" % heading)
@@ -87,13 +119,17 @@ def main(argv=None):
         print("ERROR: 結合できる原稿が1章も無い (%s)" % ms_dir, file=sys.stderr)
         return 1
 
-    out_path = args.out or os.path.join(root, "build", "%s.md" % title)
-    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("\n".join(parts + toc + body) + "\n")
 
     print("納品ファイル: %s" % os.path.relpath(out_path, root))
     print("収録: %d章 (%s) / 本文合計 %d 字" % (len(included), included, total))
+    if all_embedded:
+        print("挿絵埋め込み: %d枚 (%s)" % (len(all_embedded), ", ".join(all_embedded)))
+    if all_pending:
+        print("挿絵マーカーのみ(画像未配置): %s — illustrations/<ID>.png を置けば埋め込まれる"
+              % ", ".join(all_pending))
     missing = [n for n in ns if n not in included]
     if missing:
         print("警告: outline にあるが原稿が無い章: %s" % missing)
