@@ -1,5 +1,6 @@
 {
   "name": "novelist",
+  "description": "小説執筆支援プラグインの配布元。設定矛盾を防ぐ canon 管理・マルチエージェント監査・挿絵プロンプト生成を提供する。",
   "owner": {
     "name": "kozakikaoru"
   },
