@@ -46,8 +46,10 @@ Claude Code 用プラグイン。作品設定を綿密にヒアリングして *
 
 ```
 /plugin marketplace add kozakikaoru/novelist
-/plugin install novelist@novelist
+/plugin install novelist@novelist-marketplace
 ```
+
+デスクトップアプリでは `/plugin` コマンドの代わりに、プロンプト入力欄の **+ ボタン → Plugins** からプラグインブラウザを開いて操作する。
 
 YAML の読み込みに PyYAML があると堅牢(無ければテンプレートの書式サブセットのみ対応の内蔵パーサで動く)。推奨: `pip install pyyaml`
 
