@@ -16,7 +16,12 @@ description: 執筆状況ダッシュボード(進捗・伏線の期限・canon-
    ```
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/lint_manuscript.py" <全原稿> --project <ルート>
    ```
-7. canon 合計文字数と閾値(novel.config.yaml)から、現在のパック mode(full / layered)を表示
+7. 文字数の実測(writer の自己申告ではなくこれを使う):
+   ```
+   python3 "${CLAUDE_PLUGIN_ROOT}/scripts/count_chars.py" --project <ルート>
+   ```
+   outline に target_chars / target_total_chars があれば差分も出る
+8. canon 合計文字数と閾値(novel.config.yaml)から、現在のパック mode(full / layered)を表示
 
 # 報告フォーマット
 

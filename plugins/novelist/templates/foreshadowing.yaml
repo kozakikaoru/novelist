@@ -1,10 +1,14 @@
 # 伏線台帳 — 仕込みと回収の管理。foreshadow-keeper が毎章照合する
 # status: planted(仕込み済) / resolved(回収済) / dropped(意図的に破棄)
+#
+# 短編・1章完結では「章」の期限管理が空回りする。その場合は planted_in / due_by /
+# resolved_in を「章-場面」表記の文字列で書く(例: "1-3" = 第1章の場面3)。
+# foreshadow-keeper は場面番号の粒度で照合する。
 items: []
 #  - id: F001
 #    description: ""       # 何を匂わせたか
 #    payoff: ""            # どう回収する予定か
-#    planted_in: 1         # 仕込んだ章
+#    planted_in: 1         # 仕込んだ章(短編は "1-3" のような章-場面表記も可)
 #    due_by: 10            # この章までに回収する(期限)
 #    status: planted
 #    resolved_in: null

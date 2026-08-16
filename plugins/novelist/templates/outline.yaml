@@ -1,12 +1,15 @@
 # 章構成 — 各章の設計図。コンテキストパック生成の起点
 # characters には「登場する」キャラの id を全部書く(台詞が無くても居るなら書く)。
 # 会話で言及されるだけのキャラは書かなくてよい(1行サマリが常時ロードされるため)。
+# 保留中の項目には「# PENDING: 理由」コメントを付ける(canon-sync が自動確定しなくなる)
+# target_total_chars: 20000     # 全体の目標文字数(空白除く)。count_chars.py が照合する
 chapters: []
 #  - n: 1
-#    title: ""
+#    title: ""                   # 仮題なら「(仮)」を付ける
 #    pov: aoi                    # 視点キャラの id
 #    characters: [aoi, ren]      # 登場キャラの id
 #    locations: []
+#    target_chars: 4000          # この章の目標文字数(任意)
 #    summary: ""                 # この章で起きること・終わりの状態
 #    foreshadowing_plant: []     # この章で仕込む伏線 id
 #    foreshadowing_resolve: []   # この章で回収する伏線 id

@@ -107,7 +107,72 @@ def load_characters(root, cfg, findings):
     return chars
 
 
-def lint_file(path, root, cfg, chars, glossary, world, dead_names, known_kata):
+def check_quantitative(text, style, findings):
+    """style.yaml の quantitative ルールを機械検出する(2-5 読点過多 / 2-8「った。」連鎖)。"""
+    q = (style or {}).get("quantitative") or {}
+
+    maxc = q.get("max_commas_per_dialogue")
+    if maxc is not None:
+        for m in re.finditer(r"「([^」]*)」", text):
+            n = m.group(1).count("、")
+            if n > int(maxc):
+                findings.append((
+                    "warn", "dialogue_commas", line_of(text, m.start()),
+                    "台詞の読点過多: %d個(上限%s)「%s…」— 言い淀みの演出は絞ること"
+                    % (n, maxc, m.group(1)[:14]),
+                ))
+
+    maxr = q.get("max_consecutive_tta")
+    if maxr is not None:
+        # 台詞内を同長の空白でマスクして地の文だけを見る(行番号を保つため長さは変えない)
+        plain = re.sub(r"「[^」]*」", lambda m: "「" + " " * (len(m.group(0)) - 2) + "」", text)
+        run = 0
+        run_start = 0
+        for m in re.finditer(r"[^。\n]*。", plain):
+            if m.group(0).rstrip().endswith("った。"):
+                if run == 0:
+                    run_start = m.start()
+                run += 1
+            else:
+                if run > int(maxr):
+                    findings.append((
+                        "warn", "sentence_ending", line_of(plain, run_start),
+                        "文末「った。」が%d連続(上限%s連続) — 音の単調。文型を崩すこと" % (run, maxr),
+                    ))
+                run = 0
+        if run > int(maxr):
+            findings.append((
+                "warn", "sentence_ending", line_of(plain, run_start),
+                "文末「った。」が%d連続(上限%s連続) — 音の単調。文型を崩すこと" % (run, maxr),
+            ))
+
+
+def check_illust_anchors(path, root, text, findings):
+    """挿絵プランの挿入位置(本文引用アンカー)が改稿で消えていないか照合する(5-3)。"""
+    m = re.search(r"(\d+)", os.path.basename(path))
+    if not m:
+        return
+    n = int(m.group(1))
+    scene_file = os.path.join(root, "illustrations", "scenes", "ch%02d.md" % n)
+    if not os.path.exists(scene_file):
+        return
+    with open(scene_file, encoding="utf-8") as f:
+        plan = f.read()
+    cur_id = "?"
+    for line in plan.splitlines():
+        h = re.match(r"#+\s*([A-Za-z0-9][A-Za-z0-9_-]*)", line)
+        if h:
+            cur_id = h.group(1)
+        am = re.search(r"[「『]([^」』]{6,})[」』]の(直前|直後)", line)
+        if am and am.group(1) not in text:
+            findings.append((
+                "warn", "illust_anchor", 0,
+                "挿絵アンカー消失: %s の挿入位置「%s」が本文に無い — 改稿で消えた可能性。"
+                "illustrations/scenes/ch%02d.md の該当挿絵を見直すこと" % (cur_id, am.group(1), n),
+            ))
+
+
+def lint_file(path, root, cfg, chars, glossary, world, dead_names, known_kata, style=None):
     findings = []
     with open(path, encoding="utf-8") as f:
         text = f.read()
@@ -204,6 +269,12 @@ def lint_file(path, root, cfg, chars, glossary, world, dead_names, known_kata):
                     "回想・幻覚など意図的なら無視してよいが、意図を確認すること" % (name, src),
                 ))
                 break  # 同一キャラは1回だけ報告
+
+    # 6. 定量スタイルルール (style.yaml quantitative)
+    check_quantitative(text, style, findings)
+
+    # 7. 挿絵アンカーの生存確認
+    check_illust_anchors(path, root, text, findings)
     return findings
 
 
@@ -218,16 +289,18 @@ def main(argv=None):
         print("novel.config.yaml が見つからない: %s" % args.files[0], file=sys.stderr)
         return 1
 
-    findings = []
-    cfg = safe_load(os.path.join(root, "novel.config.yaml"), findings) or {}
+    # canon 側の構文エラーは原稿の指摘と厳密に区別する(原稿の ERROR として報告しない)
+    canon_errors = []
+    cfg = safe_load(os.path.join(root, "novel.config.yaml"), canon_errors) or {}
     canon_dir = cfg.get("paths", {}).get("canon", "canon")
-    glossary = safe_load(os.path.join(root, canon_dir, "glossary.yaml"), findings)
-    world = safe_load(os.path.join(root, canon_dir, "world.yaml"), findings)
+    glossary = safe_load(os.path.join(root, canon_dir, "glossary.yaml"), canon_errors)
+    world = safe_load(os.path.join(root, canon_dir, "world.yaml"), canon_errors)
+    style = safe_load(os.path.join(root, canon_dir, "style.yaml"), canon_errors)
     state = safe_load(
         os.path.join(root, cfg.get("paths", {}).get("state", "state"), "character-state.yaml"),
-        findings,
+        canon_errors,
     )
-    chars = load_characters(root, cfg, findings)
+    chars = load_characters(root, cfg, canon_errors)
 
     # 死亡キャラ: characters の status: dead、または state の condition に「死亡」
     dead_names = []
@@ -244,9 +317,15 @@ def main(argv=None):
     known_kata = collect_known_katakana(root, cfg, min_len)
 
     total_err = total_warn = 0
+    if canon_errors:
+        print("== novelist lint: canon 構文エラー(原稿の問題ではない) ==")
+        for _sev, _cat, _line, msg in canon_errors:
+            print("[CANON] %s" % msg)
+        print("→ 修復はメインエージェントの担当。writer はこのエラーを原稿側で解消しようとしないこと")
+        total_err += len(canon_errors)
+
     for path in args.files:
-        fs = findings + lint_file(path, root, cfg, chars, glossary, world, dead_names, known_kata)
-        findings = []  # canon 読み込みエラーは最初のファイルにだけ付ける
+        fs = lint_file(path, root, cfg, chars, glossary, world, dead_names, known_kata, style)
         if not fs:
             continue
         rel = os.path.relpath(path, root)

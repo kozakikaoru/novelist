@@ -56,6 +56,19 @@ def main(argv=None):
         print("  スキップ(既存): %s" % f)
     if not created:
         print("すべて既存。何も変更していない。")
+
+    # PyYAML チェックは「実際に hook/スクリプトが使うこの Python」で行う
+    # (python3 が複数系統ある環境で、チェックとインストールが別の Python を
+    #  見て「入っているのに動かない」ように見える事故を防ぐ)
+    try:
+        import yaml  # noqa: F401
+        print("PyYAML: OK (%s)" % sys.executable)
+    except ImportError:
+        print("PyYAML: 未導入 (%s)" % sys.executable)
+        print("  推奨: %s -m pip install pyyaml" % sys.executable)
+        print("  (python3 -c / pip3 でのチェックは別の Python を見ることがある。"
+              "必ず上のコマンドをそのまま使うこと)")
+        print("  未導入でも動くが、YAML はテンプレートの書式(サブセット)を厳守する必要がある")
     return 0
 
 

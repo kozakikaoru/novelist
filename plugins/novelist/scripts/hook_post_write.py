@@ -24,7 +24,7 @@ def main():
     if data.get("tool_name") not in ("Write", "Edit", "MultiEdit"):
         return 0
     path = (data.get("tool_input") or {}).get("file_path")
-    if not path or not path.endswith(".md"):
+    if not path or not path.endswith((".md", ".yaml", ".yml")):
         return 0
     path = os.path.abspath(path)
     if not os.path.exists(path):
@@ -37,7 +37,27 @@ def main():
         cfg = load_yaml(os.path.join(root, "novel.config.yaml")) or {}
     except Exception:
         return 0
-    ms_dir = os.path.abspath(os.path.join(root, (cfg.get("paths") or {}).get("manuscript", "manuscript")))
+    paths = cfg.get("paths") or {}
+
+    # canon/plot/state の YAML は保存の瞬間に構文チェックする
+    # (壊れた canon が執筆中に発覚してパイプラインを止める事故を防ぐ)
+    if path.endswith((".yaml", ".yml")):
+        for key, default in (("canon", "canon"), ("plot", "plot"), ("state", "state")):
+            d = os.path.abspath(os.path.join(root, paths.get(key, default)))
+            if path.startswith(d + os.sep):
+                try:
+                    load_yaml(path)
+                except Exception as e:
+                    sys.stderr.write(
+                        "[novelist hook] YAML 構文エラー: %s\n%s\n"
+                        "このファイルを保存し直す前に構文を修正すること。\n"
+                        % (os.path.relpath(path, root), e)
+                    )
+                    return 2
+                return 0
+        return 0
+
+    ms_dir = os.path.abspath(os.path.join(root, paths.get("manuscript", "manuscript")))
     if not path.startswith(ms_dir + os.sep):
         return 0
 
@@ -50,10 +70,13 @@ def main():
         return 0
     sys.stderr.write(proc.stdout + proc.stderr)
     sys.stderr.write(
-        "\n[novelist hook] 原稿が canon と矛盾している。上記を修正して保存し直すこと。\n"
+        "\n[novelist hook] lint の指摘がある。上記を確認すること。\n"
+        "- [CANON] canon 構文エラー: 原稿の問題ではない。writer は原稿で解消しようとせず、\n"
+        "  メインエージェントに canon の修復を委ねること\n"
         "- ERROR: 原稿側を正典に合わせて書き直す(正典が誤りなら人間に確認)\n"
         "- 未登録カタカナ語: 意図した固有名詞なら canon/glossary.yaml に登録してから続行。\n"
         "  一般名詞なら state/lint-allowlist.txt に1行追加。意図しない語なら原稿から除去\n"
+        "- 読点過多/「った。」連続: 該当箇所の文を書き直す(canon/style.yaml quantitative が基準)\n"
     )
     return 2
 

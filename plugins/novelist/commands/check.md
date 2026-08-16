@@ -12,11 +12,11 @@ argument-hint: "<章番号|all>"
    ```
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/lint_manuscript.py" <対象ファイル...> --project <プロジェクトルート>
    ```
-3. **監査エージェント3体を並列起動**(1メッセージで同時に):
-   `novelist:continuity-auditor` / `novelist:style-auditor` / `novelist:foreshadow-keeper`
+3. **監査エージェント4体を並列起動**(1メッセージで同時に):
+   `novelist:continuity-auditor` / `novelist:style-auditor` / `novelist:foreshadow-keeper` / `novelist:plausibility-auditor`
    それぞれに対象章番号と原稿パスを渡す。`all` の場合も一括で全章分を各監査に渡してよい(章ごとに分けて報告させる)。
 4. 結果を集約して報告する:
-   - lint の指摘(機械検出)と監査の指摘(文脈検出)を分けて、重大度順に列挙
+   - lint の指摘(機械検出)と監査の指摘(文脈検出)を分けて、重大度順に列挙。説得力監査の指摘は「要確認」として別枠にする(主観的判断を含むため)
    - 修正するかはユーザーの判断に委ねる。修正指示が出たら `/novelist:write` の差し戻しと同様に writer エージェント経由で行う
 5. 何も指摘が無ければ「全チェック通過」と報告する。
 

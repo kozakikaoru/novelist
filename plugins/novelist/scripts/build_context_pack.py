@@ -37,6 +37,28 @@ def try_load(path):
         return None
 
 
+def validate_yaml_tree(root, paths, exclude_dir):
+    """canon/plot/state の全 YAML を厳密に parse し、壊れているファイルを列挙する。
+
+    canon の構文エラーは執筆前に止める(執筆中に lint が原稿の ERROR として
+    報告し続ける事故を防ぐ)。
+    """
+    errors = []
+    for d in (paths["canon"], paths["plot"], paths["state"]):
+        for dirpath, _dn, filenames in os.walk(os.path.join(root, d)):
+            if os.path.abspath(dirpath).startswith(exclude_dir):
+                continue
+            for fn in sorted(filenames):
+                if not fn.endswith((".yaml", ".yml")):
+                    continue
+                p = os.path.join(dirpath, fn)
+                try:
+                    load_yaml(p)
+                except Exception as e:
+                    errors.append((os.path.relpath(p, root), e))
+    return errors
+
+
 def canon_total_chars(root, paths, exclude_dir):
     total = 0
     for d in (paths["canon"], paths["plot"], paths["state"]):
@@ -108,6 +130,16 @@ def main(argv=None):
     pack_dir = os.path.abspath(
         os.path.join(root, cp_cfg.get("output_dir", os.path.join(paths["state"], "context-pack")))
     )
+
+    # 執筆前ゲート: canon が壊れていたらパックを作らない
+    yaml_errors = validate_yaml_tree(root, paths, pack_dir)
+    if yaml_errors:
+        print("ERROR: canon/plot/state に YAML 構文エラーがある。修復するまで執筆に進まないこと:", file=sys.stderr)
+        for rel, e in yaml_errors:
+            print("  - %s: %s" % (rel, e), file=sys.stderr)
+        print("(これは原稿の問題ではない。メインエージェントが該当ファイルを修復すること)", file=sys.stderr)
+        return 1
+
     total = canon_total_chars(root, paths, pack_dir)
     mode = "full" if total < threshold else "layered"
 
